@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option go_package = "github.com/Gumichocopengin8/envoy-todolist/proto";
+
+package todolist;
+
+import "google/protobuf/empty.proto";
+// import "google/protobuf/timestamp.proto";
+
+service TodoList {
+  rpc GetItems(google.protobuf.Empty) returns (stream GetItemsResponse) {}
+  rpc PostItem(PostItemRequest) returns (PostItemResponse) {}
+}
+
+// enum Status {
+//   STATUS_UNSPECIFIED = 0;
+//   STATUS_TODO = 1;
+//   STATUS_IN_PROGRESS = 2;
+//   STATUS_DONE = 3;
+//   STATUS_WONT_DO = 4;
+// }
+
+message Item {
+  int64 id = 1;
+  string name = 2;
+  // Status status = 3;
+  // google.protobuf.Timestamp createdAt = 4;
+  // google.protobuf.Timestamp modifiedAt = 5;
+}
+
+message GetItemsResponse {
+  Item item = 1;
+}
+
+message PostItemRequest {
+  Item item = 1;
+}
+
+message PostItemResponse {
+  bool result = 1;
+}

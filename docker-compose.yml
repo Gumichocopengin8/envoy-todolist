@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  envoy:
+    build:
+      context: ./proxy
+    container_name: envoy-todolist-proxy
+    ports:
+      - 8888:8888
+      - 9091:9091
+    links:
+      - backend
+  backend:
+    build: ./api
+    stdin_open: true
+    tty: true
+    ports:
+      - 9090:9090
