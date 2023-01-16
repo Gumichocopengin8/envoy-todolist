@@ -9,5 +9,4 @@ RUN go build -o app main.go
 FROM alpine
 RUN apk add --no-cache ca-certificates
 COPY --from=builder /go/src/github.com/Gumichocopengin8/envoy-todolist/app /app
-EXPOSE 50051
 ENTRYPOINT ["/app"]
