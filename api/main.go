@@ -17,12 +17,12 @@ const (
 
 type server struct {
 	pb.UnimplementedTodoListServer
-	requests []*pb.GetItemsResponse
+	requests []*pb.Item
 }
 
 func (s *server) GetItems(_ *empty.Empty, stream pb.TodoList_GetItemsServer) error {
 	for _, r := range s.requests {
-		if err := stream.Send(&pb.GetItemsResponse{Item: r.GetItem()}); err != nil {
+		if err := stream.Send(&pb.GetItemsResponse{Item: r}); err != nil {
 			return err
 		}
 	}
@@ -33,8 +33,8 @@ func (s *server) GetItems(_ *empty.Empty, stream pb.TodoList_GetItemsServer) err
 		currentCount := len(s.requests)
 		if previousCount < currentCount && currentCount > 0 {
 			r := s.requests[currentCount-1]
-			log.Printf("Sent: %v", r.GetItem())
-			if err := stream.Send(&pb.GetItemsResponse{Item: r.GetItem()}); err != nil {
+			log.Printf("Sent: %v", r)
+			if err := stream.Send(&pb.GetItemsResponse{Item: r}); err != nil {
 				return err
 			}
 		}
@@ -42,11 +42,24 @@ func (s *server) GetItems(_ *empty.Empty, stream pb.TodoList_GetItemsServer) err
 	}
 }
 
+var count int64 = 1
+
 func (s *server) PostItem(ctx context.Context, r *pb.PostItemRequest) (*pb.PostItemResponse, error) {
-	log.Printf("Received: %v", r.GetItem())
-	newItem := &pb.GetItemsResponse{Item: r.GetItem()}
+	newItem := &pb.Item{Id: count, Name: r.GetName(), Status: r.GetStatus()}
+	count += 1
 	s.requests = append(s.requests, newItem)
+	log.Printf("Received: %v", newItem)
 	return &pb.PostItemResponse{Result: true}, nil
+}
+
+func (s *server) UpdateItem(ctx context.Context, r *pb.UpdateItemRequest) (*pb.UpdateItemResponse, error) {
+	for i := range s.requests {
+		if s.requests[i].GetId() == r.GetId() {
+			s.requests[i] = &pb.Item{Id: r.GetId(), Name: r.GetName()}
+			break
+		}
+	}
+	return &pb.UpdateItemResponse{Result: true}, nil
 }
 
 func main() {

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 type TodoListClient interface {
 	GetItems(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (TodoList_GetItemsClient, error)
 	PostItem(ctx context.Context, in *PostItemRequest, opts ...grpc.CallOption) (*PostItemResponse, error)
+	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error)
 }
 
 type todoListClient struct {
@@ -72,12 +73,22 @@ func (c *todoListClient) PostItem(ctx context.Context, in *PostItemRequest, opts
 	return out, nil
 }
 
+func (c *todoListClient) UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error) {
+	out := new(UpdateItemResponse)
+	err := c.cc.Invoke(ctx, "/todolist.TodoList/UpdateItem", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TodoListServer is the server API for TodoList service.
 // All implementations must embed UnimplementedTodoListServer
 // for forward compatibility
 type TodoListServer interface {
 	GetItems(*emptypb.Empty, TodoList_GetItemsServer) error
 	PostItem(context.Context, *PostItemRequest) (*PostItemResponse, error)
+	UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error)
 	mustEmbedUnimplementedTodoListServer()
 }
 
@@ -90,6 +101,9 @@ func (UnimplementedTodoListServer) GetItems(*emptypb.Empty, TodoList_GetItemsSer
 }
 func (UnimplementedTodoListServer) PostItem(context.Context, *PostItemRequest) (*PostItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostItem not implemented")
+}
+func (UnimplementedTodoListServer) UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateItem not implemented")
 }
 func (UnimplementedTodoListServer) mustEmbedUnimplementedTodoListServer() {}
 
@@ -143,6 +157,24 @@ func _TodoList_PostItem_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TodoList_UpdateItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoListServer).UpdateItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todolist.TodoList/UpdateItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoListServer).UpdateItem(ctx, req.(*UpdateItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TodoList_ServiceDesc is the grpc.ServiceDesc for TodoList service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,6 +185,10 @@ var TodoList_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PostItem",
 			Handler:    _TodoList_PostItem_Handler,
+		},
+		{
+			MethodName: "UpdateItem",
+			Handler:    _TodoList_UpdateItem_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

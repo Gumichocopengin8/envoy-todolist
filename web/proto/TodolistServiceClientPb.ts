@@ -105,5 +105,48 @@ export class TodoListClient {
     this.methodDescriptorPostItem);
   }
 
+  methodDescriptorUpdateItem = new grpcWeb.MethodDescriptor(
+    '/todolist.TodoList/UpdateItem',
+    grpcWeb.MethodType.UNARY,
+    todolist_pb.UpdateItemRequest,
+    todolist_pb.UpdateItemResponse,
+    (request: todolist_pb.UpdateItemRequest) => {
+      return request.serializeBinary();
+    },
+    todolist_pb.UpdateItemResponse.deserializeBinary
+  );
+
+  updateItem(
+    request: todolist_pb.UpdateItemRequest,
+    metadata: grpcWeb.Metadata | null): Promise<todolist_pb.UpdateItemResponse>;
+
+  updateItem(
+    request: todolist_pb.UpdateItemRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: todolist_pb.UpdateItemResponse) => void): grpcWeb.ClientReadableStream<todolist_pb.UpdateItemResponse>;
+
+  updateItem(
+    request: todolist_pb.UpdateItemRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: todolist_pb.UpdateItemResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/todolist.TodoList/UpdateItem',
+        request,
+        metadata || {},
+        this.methodDescriptorUpdateItem,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/todolist.TodoList/UpdateItem',
+    request,
+    metadata || {},
+    this.methodDescriptorUpdateItem);
+  }
+
 }
 
